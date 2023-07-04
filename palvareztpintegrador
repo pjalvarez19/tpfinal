@@ -27,8 +27,7 @@ async function obtenerCotizacion() {
   Terminal.log("Presiona ENTER para volver a consultar")
   await Terminal.leerEnter()
   obtenerCotizacion()
-}
-
+} 
 async function inicio() {
   if (
     !import.meta.env ||
