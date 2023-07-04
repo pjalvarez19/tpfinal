@@ -1,0 +1,62 @@
+import { Terminal } from "@es-js/terminal"
+import { tiza } from "https://cdn.jsdelivr.net/npm/@es-js/tiza@0.0.5/+esm"
+import cryptojs from "https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/+esm"
+
+import.meta.env = {
+  VITE_TOKEN: "2cdce6d2f48ff8305e18baf6e3a62e26",
+}
+
+async function obtenerCotizacion() {
+  Terminal.clear()
+
+  const respuesta = await fetch(
+    "https://dolar-api-argentina.vercel.app/v1/dolares/blue"
+  )
+
+  const dolarBlue = await respuesta.json()
+
+  const promedio = Math.ceil((dolarBlue.compra + dolarBlue.venta) / 2)
+
+  Terminal.log("Cotización del Dolar en Argentina")
+
+  Terminal.log("Compra: $" + dolarBlue.compra)
+  Terminal.log("Venta: $" + dolarBlue.venta)
+  Terminal.log("Promedio: $" + promedio)
+  Terminal.log("Fecha de actualización: " + dolarBlue.fechaActualizacion)
+
+  Terminal.log("Presiona ENTER para volver a consultar")
+  await Terminal.leerEnter()
+  obtenerCotizacion()
+}
+
+async function inicio() {
+  if (
+    !import.meta.env ||
+    !import.meta.env.VITE_TOKEN ||
+    import.meta.env.VITE_TOKEN.trim() == ""
+  ) {
+    return Terminal.log(
+      tiza.fondoRojo('Debes definir la Variable de Entorno "VITE_TOKEN"')
+    )
+  }
+
+  Terminal.log("Hola! Ingresa la contraseña")
+
+  const contraseña = await Terminal.leer()
+
+  if (calcularMd5(contraseña) == import.meta.env.VITE_TOKEN) {
+    obtenerCotizacion()
+  } else {
+    Terminal.log(tiza.fondoRojo("Contraseña incorrecta"))
+    Terminal.log("Presiona ENTER para volver a intentar")
+    await Terminal.leerEnter()
+    Terminal.clear()
+    inicio()
+  }
+}
+
+function calcularMd5(cadena) {
+  return cryptojs.MD5(String(cadena)).toString()
+}
+
+inicio()
